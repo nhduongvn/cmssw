@@ -97,11 +97,18 @@ namespace edm {
       Service<SiteLocalConfig> localconfservice;
       if (!localconfservice.isAvailable())
         throw cms::Exception("TrivialFileCatalog", "edm::SiteLocalConfigService is not available");
-
-      m_url = (fallback ? localconfservice->fallbackDataCatalog() : localconfservice->dataCatalog());
+      //m_url = (fallback ? localconfservice->fallbackDataCatalog() : localconfservice->dataCatalog());
+      //HERE
+      if (fallback) {
+        std::vector<std::string> tmp = localconfservice->fallbackDataCatalog() ;
+        if (tmp.size() > 0) m_url = tmp[0] ;
+      }
+      else {
+        m_url = localconfservice->dataCatalog() ;
+      }
     }
 
-    // std::cout << "Connecting to the catalog " << m_url << std::endl;
+    std::cout << "Connecting to the catalog " << m_url << std::endl;
 
     if (m_url.find("file:") == std::string::npos) {
       throw cms::Exception("TrivialFileCatalog",

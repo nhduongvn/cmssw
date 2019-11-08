@@ -13,7 +13,9 @@ namespace {
   public:
     TestSiteLocalConfig(std::string catalog) : m_catalog(std::move(catalog)) {}
     std::string const dataCatalog(void) const final { return m_catalog; }
-    std::string const fallbackDataCatalog(void) const final { return std::string(); }
+    //std::string const fallbackDataCatalog(void) const final { return std::string(); }
+    //HERE
+    std::vector<std::string> const fallbackDataCatalog(void) const final { return std::vector<std::string>(); }
     std::string const lookupCalibConnect(std::string const& input) const final { return std::string(); }
     std::string const rfioType(void) const final { return std::string(); }
 

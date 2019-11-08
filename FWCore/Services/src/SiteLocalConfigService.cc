@@ -9,6 +9,8 @@
 #include <sstream>
 #include <memory>
 #include <boost/algorithm/string.hpp>
+//HERE
+#include <iostream>
 
 //<<<<<< PRIVATE DEFINES                                                >>>>>>
 //<<<<<< PRIVATE CONSTANTS                                              >>>>>>
@@ -150,13 +152,16 @@ namespace edm {
 
       return m_dataCatalog;
     }
-
-    std::string const SiteLocalConfigService::fallbackDataCatalog(void) const {
+    
+    //HERE
+    std::vector<std::string> const SiteLocalConfigService::fallbackDataCatalog(void) const {
       if (!m_connected) {
         //throw cms::Exception("Incomplete configuration")
         //    << "Valid site-local-config not found at " << m_url;
         // Return PoolFileCatalog.xml for now
-        return "file:PoolFileCatalog.xml";
+        //return "file:PoolFileCatalog.xml";
+        //HERE
+        return std::vector<std::string>({"file:PoolFileCatalog.xml"}) ;
       }
 
       // Note: Unlike the dataCatalog, the fallbackDataCatalog may be empty!
@@ -312,10 +317,20 @@ namespace edm {
             auto catalog = eventData->FirstChildElement("catalog");
             if (catalog) {
               m_dataCatalog = safe(catalog->Attribute("url"));
+              
               catalog = catalog->NextSiblingElement("catalog");
-              if (catalog) {
-                m_fallbackDataCatalog = safe(catalog->Attribute("url"));
+              //HERE
+              //loop over all fallbackCatalog instances
+              while (catalog) {
+                m_fallbackDataCatalog.push_back(safe(catalog->Attribute("url")));
+                catalog = catalog->NextSiblingElement("catalog");
               }
+              //if (catalog) {
+              //  m_fallbackDataCatalog = safe(catalog->Attribute("url"));
+              //}
+              //HERE 
+              //catalog = catalog->NextSiblingElement("catalog") ;
+              //std::cout << "\n Test next catalog: " << safe(catalog->Attribute("url")) ;
             }
             auto rfiotype = eventData->FirstChildElement("rfiotype");
             if (rfiotype) {
