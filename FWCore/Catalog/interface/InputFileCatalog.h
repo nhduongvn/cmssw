@@ -60,10 +60,14 @@ namespace edm {
     std::vector<std::string> const& fallbackFileNames() const { return fallbackFileNames_; }
     bool empty() const { return fileCatalogItems_.empty(); }
     static bool isPhysical(std::string const& name) { return (name.empty() || name.find(':') != std::string::npos); }
+    
+    //HERE
+    unsigned int n_otherFileLocator() const {return otherFileLocators_.size() ; }
+    std::string getFileName_otherFileLocators(std::string in_lfn, unsigned int iFileLocator) const {
+      return otherFileLocators_[iFileLocator]->pfn(in_lfn) ;
+    } 
 
   private:
-    //HERE
-    //void init(std::string const& override, bool useLFNasPFNifLFNnotFound);
     void init(std::string const& override, std::string const& overrideFallback, bool useLFNasPFNifLFNnotFound);
     void findFile(std::string& pfn, std::string& fallbackPfn, std::string const& lfn, bool useLFNasPFNifLFNnotFound);
     std::vector<std::string> logicalFileNames_;
@@ -75,7 +79,7 @@ namespace edm {
     edm::propagate_const<std::unique_ptr<FileLocator>> fallbackFileLocator_;
     edm::propagate_const<std::unique_ptr<FileLocator>> overrideFallbackFileLocator_;
     //HERE
-    //std::vector<edm::propagate_const<std::unique_ptr<FileLocator>> > fileLocators_;
+    std::vector<edm::propagate_const<std::unique_ptr<FileLocator>> > otherFileLocators_;
   };
 }  // namespace edm
 
