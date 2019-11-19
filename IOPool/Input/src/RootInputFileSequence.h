@@ -56,6 +56,13 @@ namespace edm {
                      InputSource* input,
                      char const* inputTypeName,
                      InputType inputType);
+    //HERE
+    //void initTheFile_dataCatalogs(bool skipBadFiles,
+    //                 bool deleteIndexIntoFile,
+    //                 InputSource* input,
+    //                 char const* inputTypeName,
+    //                 InputType inputType);
+
     bool skipToItemInNewFile(RunNumber_t run, LuminosityBlockNumber_t lumi, EventNumber_t event);
     bool skipToItemInNewFile(RunNumber_t run, LuminosityBlockNumber_t lumi, EventNumber_t event, size_t fileNameHash);
 
@@ -73,6 +80,9 @@ namespace edm {
     void setAtPreviousFile() { --fileIter_; }
 
     std::string const& fileName() const { return fileIter_->fileName(); }
+    //HERE
+    std::string const& rawPfn() const { return fileIter_->rawPfn(); }
+    std::string const& rawLfn() const { return fileIter_->rawLfn(); }
     std::string const& logicalFileName() const { return fileIter_->logicalFileName(); }
     std::string const& fallbackFileName() const { return fileIter_->fallbackFileName(); }
     std::string const& lfn() const { return lfn_; }
@@ -102,6 +112,8 @@ namespace edm {
   private:
     virtual RootFileSharedPtr makeRootFile(std::shared_ptr<InputFile> filePtr) = 0;
     virtual void initFile_(bool skipBadFiles) = 0;
+    //HERE
+    //virtual void initFile_dataCatalogs_(bool skipBadFiles) = 0;
     virtual void closeFile_() = 0;
 
   };  // class RootInputFileSequence

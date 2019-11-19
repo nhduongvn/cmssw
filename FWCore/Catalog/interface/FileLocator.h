@@ -13,6 +13,8 @@ namespace edm {
   class FileLocator {
   public:
     explicit FileLocator(std::string const& catUrl, bool fallback);
+    //HERE 
+    explicit FileLocator(std::string const& catUrl); //constructor not using fallback data catalog
     ~FileLocator();
 
     std::string pfn(std::string const& ilfn) const;
@@ -36,7 +38,11 @@ namespace edm {
 
     void init(std::string const& catUrl, bool fallback);
 
+    //HERE
+    void init_use_dataCatalogs(std::string const& catUrl);
+
     void parseRule(tinyxml2::XMLElement* ruleNode, ProtocolRules& rules);
+    bool parseRule1(tinyxml2::XMLElement* ruleNode, ProtocolRules& rules);
 
     std::string applyRules(ProtocolRules const& protocolRules,
                            std::string const& protocol,
@@ -51,10 +57,17 @@ namespace edm {
     /** Inverse rules are used to do the mapping from PFN to LFN*/
     ProtocolRules m_inverseRules;
 
+    std::vector<ProtocolRules> m_all_directRules ;
+    std::vector<ProtocolRules> m_all_inverseRules ;
+
     std::string m_fileType;
     std::string m_filename;
     std::vector<std::string> m_protocols;
     std::string m_destination;
+
+    std::vector<std::string> m_filenames ;
+    std::vector<std::string> m_destinations;
+    std::vector<std::vector<std::string> > m_all_protocols ;
   };
 }  // namespace edm
 

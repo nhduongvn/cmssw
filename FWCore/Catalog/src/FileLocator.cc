@@ -46,9 +46,18 @@ namespace edm {
   FileLocator::FileLocator(std::string const& catUrl, bool fallback) : m_destination("any") {
     init(catUrl, fallback);
 
-    // std::cout << m_protocols.size() << " protocols" << std::endl;
-    // std::cout << m_directRules[m_protocols[0]].size() << " rules" << std::endl;
+    std::cout << m_protocols.size() << " protocols" << std::endl;
+    std::cout << m_directRules[m_protocols[0]].size() << " rules" << std::endl;
   }
+  
+  //HERE
+  FileLocator::FileLocator(std::string const& catUrl) : m_destination("any") {
+    init_use_dataCatalogs(catUrl);
+
+     //std::cout << m_protocols.size() << " protocols" << std::endl;
+     //std::cout << m_directRules[m_protocols[0]].size() << " rules" << std::endl;
+  }
+
 
   FileLocator::~FileLocator() {}
 
@@ -90,6 +99,32 @@ namespace edm {
     rules[protocol].emplace_back(std::move(rule));
   }
 
+  bool FileLocator::parseRule1(tinyxml2::XMLElement* ruleElement, ProtocolRules& rules) {
+    if (!ruleElement) {
+      std::cout << "\nTrivialFileCatalog, TrivialFileCatalog::connect: Malformed trivial catalog in parsing rule" ;
+      return false ;
+    }
+
+    auto const protocol = safe(ruleElement->Attribute("protocol"));
+    auto destinationMatchRegexp = ruleElement->Attribute("destination-match");
+    if (destinationMatchRegexp == nullptr or destinationMatchRegexp[0] == 0) {
+      destinationMatchRegexp = ".*";
+    }
+
+    auto const pathMatchRegexp = safe(ruleElement->Attribute("path-match"));
+    auto const result = safe(ruleElement->Attribute("result"));
+    auto const chain = safe(ruleElement->Attribute("chain"));
+
+    Rule rule;
+    rule.pathMatch.assign(pathMatchRegexp);
+    rule.destinationMatch.assign(destinationMatchRegexp);
+    rule.result = result;
+    rule.chain = chain;
+    rules[protocol].emplace_back(std::move(rule));
+    return true ;
+  }
+
+
   void FileLocator::init(std::string const& catUrl, bool fallback) {
     std::string m_url = catUrl;
 
@@ -120,6 +155,7 @@ namespace edm {
     std::vector<std::string> tokens;
     boost::algorithm::split(tokens, m_url, boost::is_any_of(std::string("?")));
     m_filename = tokens[0];
+    std::cout << "FileLocator.cc init m_filename" << m_filename ;
 
     if (tokens.size() == 2) {
       std::string const options = tokens[1];
@@ -144,6 +180,10 @@ namespace edm {
         } else if (argTokens[0] == "destination") {
           m_destination = argTokens[1];
         }
+        std::cout << "\n FileLocator.cc init m_protocols" ;
+        for (unsigned int iT = 0 ; iT < m_protocols.size() ; ++iT) std::cout << " " << m_protocols[iT] ;
+        std::cout << "\n FileLocator.cc init m_destination " << m_destination ;
+
       }
     }
 
@@ -196,6 +236,142 @@ namespace edm {
          el = el->NextSiblingElement("pfn-to-lfn")) {
       parseRule(el, m_inverseRules);
     }
+  }
+  
+  //HERE
+  void FileLocator::init_use_dataCatalogs(std::string const& catUrl) {
+    
+    std::vector<std::string> m_urls ;
+
+    if (!catUrl.empty()) m_urls.push_back(catUrl) ;
+    else {
+      Service<SiteLocalConfig> localconfservice;
+      if (!localconfservice.isAvailable())
+        throw cms::Exception("TrivialFileCatalog", "edm::SiteLocalConfigService is not available");
+      m_urls = localconfservice->dataCatalogs() ;
+    }
+
+    for (unsigned int i = 0 ; i < m_urls.size() ; ++i) {
+      
+      std::string m_url = m_urls[i] ;
+      std::cout << "Connecting to the catalog " << m_url << std::endl;
+      
+      std::string tmp_filename ;
+      std::string tmp_destination ;
+      std::vector<std::string> tmp_protocols ;
+      
+      if (m_url.find("file:") == std::string::npos) {
+        std::cout << "\n TrivialFileCatalog, TrivialFileCatalog::connect: Malformed url for file catalog configuration " << m_url ;
+        std::cout << "\n Continue to next file catalog" << std::endl ;
+        continue ;
+      }
+      else {
+        m_url = m_url.erase(0, m_url.find(":") + 1);
+      }
+
+      std::vector<std::string> tokens;
+      boost::algorithm::split(tokens, m_url, boost::is_any_of(std::string("?")));
+      
+      //assign m_filename as the first url
+      //if (i == 0) m_filename = tokens[0] ;
+      //m_filenames.push_back(tokens[0]) ;
+      //tmp_filenames.push_back(tokens[0]) ;
+      tmp_filename = tokens[0] ;
+
+      if (tokens.size() == 2) {
+        std::string const options = tokens[1];
+        std::vector<std::string> optionTokens;
+        boost::algorithm::split(optionTokens, options, boost::is_any_of(std::string("&")));
+
+        std::string const equalSign("=");
+        std::string const comma(",");
+
+        for (size_t oi = 0, oe = optionTokens.size(); oi != oe; ++oi) {
+          std::string const option = optionTokens[oi];
+          std::vector<std::string> argTokens;
+          boost::algorithm::split(argTokens, option, boost::is_any_of(equalSign));
+
+          if (argTokens.size() != 2) {
+            std::cout << "\n TrivialFileCatalog, TrivialFileCatalog::connect: Malformed url for file catalog configuration " << m_url ;
+            std::cout << "\n Continue to next file catalog" << std::endl ;
+            continue ;
+          } 
+          if (argTokens[0] == "protocol") {
+            boost::algorithm::split(tmp_protocols, argTokens[1], boost::is_any_of(comma));
+          } else if (argTokens[0] == "destination") {
+            tmp_destination = argTokens[1] ;
+          }
+        }
+      }
+      
+      if (tmp_protocols.empty()) {
+        std::cout << "\n TrivialFileCatalog, TrivialFileCatalog::connect: protocol was not supplied in the contact string" << m_url ;
+        std::cout << "\n Continue to next file catalog" << std::endl ;
+        continue ;
+      }
+
+      std::ifstream configFile;
+      configFile.open(tmp_filename.c_str());
+
+      // std::cout << "Using catalog configuration " << m_filename << std::endl;
+
+      if (!configFile.good() || !configFile.is_open()) {
+        std::cout << "\n TrivialFileCatalog, TrivialFileCatalog::connect: Unable to open trivial file catalog " << m_url ;
+        std::cout << "\n Continue to next file catalog" << std::endl ;
+        continue ;
+      }
+      configFile.close();
+
+      tinyxml2::XMLDocument doc;
+      auto loadErr = doc.LoadFile(m_filename.c_str());
+      if (loadErr != tinyxml2::XML_SUCCESS) {
+        std::cout << "\n TrivialFileCatalog, tinyxml file load failed with error : " << doc.ErrorStr() << std::endl;
+        std::cout << "\n Continue to next file catalog" << std::endl ;
+        continue ;
+      }
+
+      //trivialFileCatalog matches the following xml schema
+	    //FIXME: write a proper DTD
+	    //<storage-mapping>
+	    //<lfn-to-pfn protocol="direct" destination-match=".*"
+	    //path-match="lfn/guid match regular expression"
+	    //result="/castor/cern.ch/cms/$1"/>
+	    //<pfn-to-lfn protocol="srm"
+	    //path-match="lfn/guid match regular expression"
+	    //result="$1"/>
+	    //</storage-mapping>
+
+      auto rootElement = doc.RootElement();
+      
+      ProtocolRules tmp_rules ;
+      //first of all do the lfn-to-pfn bit
+      for (auto el = rootElement->FirstChildElement("lfn-to-pfn"); el != nullptr;
+         el = el->NextSiblingElement("lfn-to-pfn")) {
+        if(!parseRule1(el, tmp_rules)) {
+          std::cout << "\n Continue to the next catalog" << std::endl ;
+          continue ;
+        }
+      }
+
+      ProtocolRules tmp_inverse_rules ;
+      //Then we handle the pfn-to-lfn bit
+      for (auto el = rootElement->FirstChildElement("pfn-to-lfn"); el != nullptr;
+         el = el->NextSiblingElement("pfn-to-lfn")) {
+        if(!parseRule1(el, tmp_inverse_rules)) {
+          std::cout << "\n Continue to the next catalog" << std::endl ;
+          continue ;
+        }
+      }
+
+
+      //everything is good for this data catalog, now make assignment for the variables
+      m_filenames.push_back(tmp_filename) ;
+      m_all_protocols.push_back(tmp_protocols) ;
+      m_destinations.push_back(tmp_destination) ;
+      m_all_directRules.push_back(tmp_rules) ;
+      m_all_inverseRules.push_back(tmp_inverse_rules) ;
+    }
+
   }
 
   std::string FileLocator::applyRules(ProtocolRules const& protocolRules,

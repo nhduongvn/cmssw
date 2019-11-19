@@ -18,14 +18,24 @@ namespace edm {
     FileCatalogItem() : pfn_(), lfn_(), fallbackPfn_() {}
     FileCatalogItem(std::string const& pfn, std::string const& lfn, std::string const& fallbackPfn)
         : pfn_(pfn), lfn_(lfn), fallbackPfn_(fallbackPfn) {}
+    //HERE
+    FileCatalogItem(std::string const& pfn, std::string const& lfn, std::string const& fallbackPfn, std::string const& rawPfn, std::string const& rawLfn)
+        : pfn_(pfn), lfn_(lfn), fallbackPfn_(fallbackPfn), rawPfn_(rawPfn), rawLfn_(rawLfn) {}
     std::string const& fileName() const { return pfn_; }
     std::string const& logicalFileName() const { return lfn_; }
     std::string const& fallbackFileName() const { return fallbackPfn_; }
+    //HERE
+    std::string const& rawPfn() const { return rawPfn_; }
+    std::string const& rawLfn() const { return rawLfn_; }
+
 
   private:
     std::string pfn_;
     std::string lfn_;
     std::string fallbackPfn_;
+    //HERE
+    std::string rawPfn_ ;
+    std::string rawLfn_ ;
   };
 
   class InputFileCatalog {
@@ -37,6 +47,12 @@ namespace edm {
                      std::string const& override,
                      std::string const& overrideFallback,
                      bool useLFNasPFNifLFNnotFound = false);
+    InputFileCatalog(std::vector<std::string> const& fileNames,
+                     std::string const& override,
+                     std::string const& overrideFallback,
+                     bool useLFNasPFNifLFNnotFound = false,
+                     bool dummy = true);
+
     ~InputFileCatalog();
     std::vector<FileCatalogItem> const& fileCatalogItems() const { return fileCatalogItems_; }
     std::vector<std::string> const& logicalFileNames() const { return logicalFileNames_; }
@@ -46,6 +62,8 @@ namespace edm {
     static bool isPhysical(std::string const& name) { return (name.empty() || name.find(':') != std::string::npos); }
 
   private:
+    //HERE
+    //void init(std::string const& override, bool useLFNasPFNifLFNnotFound);
     void init(std::string const& override, std::string const& overrideFallback, bool useLFNasPFNifLFNnotFound);
     void findFile(std::string& pfn, std::string& fallbackPfn, std::string const& lfn, bool useLFNasPFNifLFNnotFound);
     std::vector<std::string> logicalFileNames_;
@@ -56,6 +74,8 @@ namespace edm {
     edm::propagate_const<std::unique_ptr<FileLocator>> overrideFileLocator_;
     edm::propagate_const<std::unique_ptr<FileLocator>> fallbackFileLocator_;
     edm::propagate_const<std::unique_ptr<FileLocator>> overrideFallbackFileLocator_;
+    //HERE
+    //std::vector<edm::propagate_const<std::unique_ptr<FileLocator>> > fileLocators_;
   };
 }  // namespace edm
 

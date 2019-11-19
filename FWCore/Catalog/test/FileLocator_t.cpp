@@ -13,6 +13,7 @@ namespace {
   public:
     TestSiteLocalConfig(std::string catalog) : m_catalog(std::move(catalog)) {}
     std::string const dataCatalog(void) const final { return m_catalog; }
+    std::vector<std::string> const dataCatalogs(void) const final { return m_catalogs; }
     //std::string const fallbackDataCatalog(void) const final { return std::string(); }
     //HERE
     std::vector<std::string> const fallbackDataCatalog(void) const final { return std::vector<std::string>(); }
@@ -40,6 +41,7 @@ namespace {
 
   private:
     std::string m_catalog;
+    std::vector<std::string> m_catalogs;
   };
 }  // namespace
 
