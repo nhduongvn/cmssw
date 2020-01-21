@@ -17,6 +17,9 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "Utilities/StorageFactory/interface/StorageFactory.h"
 
+//HERE
+#include <iostream>
+
 namespace edm {
   RootPrimaryFileSequence::RootPrimaryFileSequence(ParameterSet const& pset,
                                                    PoolSource& input,
@@ -32,8 +35,18 @@ namespace edm {
         treeCacheSize_(noEventSort_ ? pset.getUntrackedParameter<unsigned int>("cacheSize") : 0U),
         duplicateChecker_(new DuplicateChecker(pset)),
         usingGoToEvent_(false),
-        enablePrefetching_(false) {
+        enablePrefetching_(false),
+        useMultipleDataCatalogs_(false) { //HERE
     // The SiteLocalConfig controls the TTreeCache size and the prefetching settings.
+        //std::cout << "\n Construct the RootPrimaryFileSequence " << useMultipleDataCatalogs_ << " " << catalog.hasMultipleDataCatalogs() << std::endl ; 
+    //HERE
+    if (useMultipleDataCatalogs_ && !catalog.hasMultipleDataCatalogs()) {
+      std::cout << "Warning: Want to use multiple data catalogs, but they are not available. Please change the setting in InputFileCatalog. I use default setting for now, ie. a primary and fallback data catalogs" << std::endl ;
+      useMultipleDataCatalogs_ = false ;
+    }
+
+    std::cout << "\n useMultipleDataCatalogs_ " << useMultipleDataCatalogs_ ; 
+
     Service<SiteLocalConfig> pSLC;
     if (pSLC.isAvailable()) {
       if (treeCacheSize_ != 0U && pSLC->sourceTTreeCacheSize()) {
@@ -63,6 +76,7 @@ namespace edm {
         skipEvents(initialNumberOfEventsToSkip_);
       }
     }
+    
   }
 
   RootPrimaryFileSequence::~RootPrimaryFileSequence() {}
@@ -97,14 +111,16 @@ namespace edm {
       rootFile().reset();
     }
   }
-
+  
+  //HERE
   void RootPrimaryFileSequence::initFile_(bool skipBadFiles) {
     // If we are not duplicate checking across files and we are not using random access to find events,
     // then we can delete the IndexIntoFile for the file we are closing.
     // If we can't delete all of it, then we can delete the parts we do not need.
     bool deleteIndexIntoFile = !usingGoToEvent_ && !(duplicateChecker_ && duplicateChecker_->checkingAllFiles() &&
                                                      !duplicateChecker_->checkDisabled());
-    initTheFile(skipBadFiles, deleteIndexIntoFile, &input_, "primaryFiles", InputType::Primary);
+    if (!useMultipleDataCatalogs_) initTheFile(skipBadFiles, deleteIndexIntoFile, &input_, "primaryFiles", InputType::Primary);
+    else initTheFileDataCatalogs(skipBadFiles, deleteIndexIntoFile, &input_, "primaryFiles", InputType::Primary);
   }
 
   RootPrimaryFileSequence::RootFileSharedPtr RootPrimaryFileSequence::makeRootFile(std::shared_ptr<InputFile> filePtr) {
@@ -139,14 +155,15 @@ namespace edm {
                                       usingGoToEvent_,
                                       enablePrefetching_);
   }
-
+  
+  //HERE
   bool RootPrimaryFileSequence::nextFile() {
     if (!noMoreFiles())
       setAtNextFile();
     if (noMoreFiles()) {
       return false;
     }
-
+    
     initFile(input_.skipBadFiles());
 
     if (rootFile()) {
