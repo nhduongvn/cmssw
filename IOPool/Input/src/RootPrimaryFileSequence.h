@@ -3,7 +3,7 @@
 
 /*----------------------------------------------------------------------
 
-RootPrimaryFileSequence: This is an InputSource
+RootPrimaryFileSequence: This is an InputSource. To use multiple data catalogs in reading files, set useMultipleDataCatalogs_ = true in the constructor. Note that multiple data catalogs needs to be available by setUseMultipleDataCatalogs = true in InputFileCatalog
 
 ----------------------------------------------------------------------*/
 

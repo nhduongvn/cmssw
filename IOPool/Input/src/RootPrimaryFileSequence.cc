@@ -12,13 +12,14 @@
 #include "FWCore/Catalog/interface/InputFileCatalog.h"
 #include "FWCore/Catalog/interface/SiteLocalConfig.h"
 #include "FWCore/Framework/interface/FileBlock.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "Utilities/StorageFactory/interface/StorageFactory.h"
 
 //HERE
-#include <iostream>
+//#include <iostream>
 
 namespace edm {
   RootPrimaryFileSequence::RootPrimaryFileSequence(ParameterSet const& pset,
@@ -41,11 +42,11 @@ namespace edm {
         //std::cout << "\n Construct the RootPrimaryFileSequence " << useMultipleDataCatalogs_ << " " << catalog.hasMultipleDataCatalogs() << std::endl ; 
     //HERE
     if (useMultipleDataCatalogs_ && !catalog.hasMultipleDataCatalogs()) {
-      std::cout << "Warning: Want to use multiple data catalogs, but they are not available. Please change the setting in InputFileCatalog. I use default setting for now, ie. a primary and fallback data catalogs" << std::endl ;
+      LogWarning("") << "Want to use multiple data catalogs, but they are not available. Please change the setting in InputFileCatalog (setUseMultipleDataCatalogs = true). I use default setting for now, ie. a primary and fallback data catalogs.\n" ;
       useMultipleDataCatalogs_ = false ;
     }
 
-    std::cout << "\n useMultipleDataCatalogs_ " << useMultipleDataCatalogs_ ; 
+    //std::cout << "\n useMultipleDataCatalogs_ " << useMultipleDataCatalogs_ ; 
 
     Service<SiteLocalConfig> pSLC;
     if (pSLC.isAvailable()) {
@@ -156,7 +157,6 @@ namespace edm {
                                       enablePrefetching_);
   }
   
-  //HERE
   bool RootPrimaryFileSequence::nextFile() {
     if (!noMoreFiles())
       setAtNextFile();
