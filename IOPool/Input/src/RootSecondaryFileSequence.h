@@ -45,6 +45,8 @@ namespace edm {
     std::vector<BranchID> associationsFromSecondary_;
     std::vector<ProcessHistoryID> orderedProcessHistoryIDs_;
     bool enablePrefetching_;
+    //HERE
+    bool useMultipleDataCatalogs_ ;
   };  // class RootSecondaryFileSequence
 }  // namespace edm
 #endif

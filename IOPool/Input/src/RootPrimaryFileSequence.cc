@@ -38,16 +38,16 @@ namespace edm {
         usingGoToEvent_(false),
         enablePrefetching_(false),
         useMultipleDataCatalogs_(false) { //HERE
-    // The SiteLocalConfig controls the TTreeCache size and the prefetching settings.
         //std::cout << "\n Construct the RootPrimaryFileSequence " << useMultipleDataCatalogs_ << " " << catalog.hasMultipleDataCatalogs() << std::endl ; 
     //HERE
     if (useMultipleDataCatalogs_ && !catalog.hasMultipleDataCatalogs()) {
-      LogWarning("") << "Want to use multiple data catalogs, but they are not available. Please change the setting in InputFileCatalog (setUseMultipleDataCatalogs = true). I use default setting for now, ie. a primary and fallback data catalogs.\n" ;
+      LogWarning("RootPrimaryFileSequence") << "Want to use multiple data catalogs, but they are not available. Please, change the setting in InputFileCatalog (setUseMultipleDataCatalogs = true). I use the default setting for now, ie. a primary and fallback data catalogs.\n" ;
       useMultipleDataCatalogs_ = false ;
     }
 
     //std::cout << "\n useMultipleDataCatalogs_ " << useMultipleDataCatalogs_ ; 
 
+    // The SiteLocalConfig controls the TTreeCache size and the prefetching settings.
     Service<SiteLocalConfig> pSLC;
     if (pSLC.isAvailable()) {
       if (treeCacheSize_ != 0U && pSLC->sourceTTreeCacheSize()) {
