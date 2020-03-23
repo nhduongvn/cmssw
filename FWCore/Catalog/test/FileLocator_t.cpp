@@ -3,7 +3,6 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
 #include <boost/filesystem.hpp>
-#include <iostream>
 
 #define CATCH_CONFIG_MAIN
 #include "catch.hpp"
@@ -14,6 +13,7 @@ namespace {
     TestSiteLocalConfig(std::string catalog) : m_catalog(std::move(catalog)) {}
     std::string const dataCatalog(void) const final { return m_catalog; }
     std::string const fallbackDataCatalog(void) const final { return std::string(); }
+    std::vector<std::string> const dataCatalogs(void) const final { return m_catalogs; }
     std::string const lookupCalibConnect(std::string const& input) const final { return std::string(); }
     std::string const rfioType(void) const final { return std::string(); }
 
@@ -38,6 +38,7 @@ namespace {
 
   private:
     std::string m_catalog;
+    std::vector<std::string> m_catalogs;
   };
 }  // namespace
 

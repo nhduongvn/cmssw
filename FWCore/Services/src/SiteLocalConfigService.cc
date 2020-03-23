@@ -1,3 +1,9 @@
+///////////////////////////////////////
+//
+// data catalogs are filled in "parse"
+//
+///////////////////////////////////////
+
 //<<<<<< INCLUDES                                                       >>>>>>
 
 #include "FWCore/Services/src/SiteLocalConfigService.h"
@@ -72,6 +78,7 @@ namespace edm {
         : m_url(pset.getUntrackedParameter<std::string>("siteLocalConfigFileUrl", defaultURL())),
           m_dataCatalog(),
           m_fallbackDataCatalog(),
+          m_dataCatalogs(),
           m_frontierConnect(),
           m_rfioType("castor"),
           m_connected(false),
@@ -149,6 +156,22 @@ namespace edm {
       }
 
       return m_dataCatalog;
+    }
+
+    std::vector<std::string> const SiteLocalConfigService::dataCatalogs(void) const {
+      if (!m_connected) {
+        //throw cms::Exception("Incomplete configuration")
+        //    << "Valid site-local-config not found at " << m_url;
+        // Return PoolFileCatalog.xml for now
+        std::vector<std::string> tmp{"file:PoolFileCatalog.xml"};
+        return tmp;
+      }
+
+      if (m_dataCatalogs.empty()) {
+        throw cms::Exception("Incomplete configuration") << "Did not find catalogs in event-data section in " << m_url;
+      }
+
+      return m_dataCatalogs;
     }
 
     std::string const SiteLocalConfigService::fallbackDataCatalog(void) const {
@@ -312,9 +335,13 @@ namespace edm {
             auto catalog = eventData->FirstChildElement("catalog");
             if (catalog) {
               m_dataCatalog = safe(catalog->Attribute("url"));
+              m_dataCatalogs.push_back(m_dataCatalog);
               catalog = catalog->NextSiblingElement("catalog");
-              if (catalog) {
-                m_fallbackDataCatalog = safe(catalog->Attribute("url"));
+              while (catalog) {
+                m_dataCatalogs.push_back(safe(catalog->Attribute("url")));
+                if (m_fallbackDataCatalog.empty())
+                  m_fallbackDataCatalog = m_dataCatalogs.back();  //for backward comparability
+                catalog = catalog->NextSiblingElement("catalog");
               }
             }
             auto rfiotype = eventData->FirstChildElement("rfiotype");

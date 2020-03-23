@@ -12,6 +12,7 @@
 #include "FWCore/Catalog/interface/InputFileCatalog.h"
 #include "FWCore/Catalog/interface/SiteLocalConfig.h"
 #include "FWCore/Framework/interface/FileBlock.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -33,7 +34,13 @@ namespace edm {
         duplicateChecker_(new DuplicateChecker(pset)),
         usingGoToEvent_(false),
         enablePrefetching_(false),
-        enforceGUIDInFileName_(pset.getUntrackedParameter<bool>("enforceGUIDInFileName")) {
+        enforceGUIDInFileName_(pset.getUntrackedParameter<bool>("enforceGUIDInFileName")),
+        useMultipleDataCatalogs_(false) {
+    if (useMultipleDataCatalogs_ && !catalog.hasMultipleDataCatalogs()) {
+      LogWarning("RootPrimaryFileSequence") << "Multiple data catalogs not available, use default settings.\n";
+      useMultipleDataCatalogs_ = false;
+    }
+
     // The SiteLocalConfig controls the TTreeCache size and the prefetching settings.
     Service<SiteLocalConfig> pSLC;
     if (pSLC.isAvailable()) {
@@ -105,7 +112,10 @@ namespace edm {
     // If we can't delete all of it, then we can delete the parts we do not need.
     bool deleteIndexIntoFile = !usingGoToEvent_ && !(duplicateChecker_ && duplicateChecker_->checkingAllFiles() &&
                                                      !duplicateChecker_->checkDisabled());
-    initTheFile(skipBadFiles, deleteIndexIntoFile, &input_, "primaryFiles", InputType::Primary);
+    if (!useMultipleDataCatalogs_)
+      initTheFile(skipBadFiles, deleteIndexIntoFile, &input_, "primaryFiles", InputType::Primary);
+    else
+      initTheFileDataCatalogs(skipBadFiles, deleteIndexIntoFile, &input_, "primaryFiles", InputType::Primary);
   }
 
   RootPrimaryFileSequence::RootFileSharedPtr RootPrimaryFileSequence::makeRootFile(std::shared_ptr<InputFile> filePtr) {
