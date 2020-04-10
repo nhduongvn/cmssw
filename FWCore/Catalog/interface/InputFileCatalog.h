@@ -19,26 +19,26 @@
 namespace edm {
   class FileCatalogItem {
   public:
-    FileCatalogItem() : pfn_(), pfns_(), lfn_(), fallbackPfn_() {}
-    FileCatalogItem(std::string const& pfn, std::string const& lfn, std::string const& fallbackPfn)
-        : pfn_(pfn), lfn_(lfn), fallbackPfn_(fallbackPfn) {}
+    //HERE
+    //FileCatalogItem() : pfn_(), pfns_(), lfn_(), fallbackPfn_() {}
+    //FileCatalogItem(std::string const& pfn, std::string const& lfn, std::string const& fallbackPfn)
+    //    : pfn_(pfn), lfn_(lfn), fallbackPfn_(fallbackPfn) {}
 
     FileCatalogItem(std::vector<std::string> const& pfns,
-                    std::string const& lfn,
-                    std::string const& fallbackPfn)  //the last argument is for backward compability
-        : pfns_(pfns), lfn_(lfn), fallbackPfn_(fallbackPfn) {
-      if (!pfns_.empty())
-        pfn_ = pfns_[0];
-    }
-
-    std::string const& fileName() const { return pfn_; }
+                    std::string const& lfn)
+        : pfns_(pfns), lfn_(lfn) {}
+    
+    //HERE
+    //return physical file name corresponds to a data catalog 
+    std::string const& fileName(unsigned iCatalog) const { return pfns_[iCatalog]; }
+    //std::string const& fallbackFileName() const { return fallbackPfn_; }
     std::string const& logicalFileName() const { return lfn_; }
-    std::string const& fallbackFileName() const { return fallbackPfn_; }
-
+    
+    //return physicl file names of a file, each name correspond to a data catalog
     std::vector<std::string> const& fileNames() const { return pfns_; }
 
   private:
-    std::string pfn_;
+    //std::string pfn_;
     std::vector<std::string> pfns_;
     std::string lfn_;
     std::string fallbackPfn_;
@@ -48,41 +48,60 @@ namespace edm {
   public:
     InputFileCatalog(std::vector<std::string> const& fileNames,
                      std::string const& override,
-                     bool useLFNasPFNifLFNnotFound = false,
-                     bool setMultipleDataCatalog = false);
-    InputFileCatalog(std::vector<std::string> const& fileNames,
-                     std::string const& override,
-                     std::string const& overrideFallback,
                      bool useLFNasPFNifLFNnotFound = false);
+    //HERE
+    //                 bool setMultipleDataCatalog = false);
+    //HERE
+    //InputFileCatalog(std::vector<std::string> const& fileNames,
+    //                 std::string const& override,
+    //                 std::string const& overrideFallback,
+    //                 bool useLFNasPFNifLFNnotFound = false);
 
     ~InputFileCatalog();
     std::vector<FileCatalogItem> const& fileCatalogItems() const { return fileCatalogItems_; }
     std::vector<std::string> const& logicalFileNames() const { return logicalFileNames_; }
-    std::vector<std::string> const& fileNames() const { return fileNames_; }
-    std::vector<std::string> const& fallbackFileNames() const { return fallbackFileNames_; }
+    //HERE return number of input files for a data catalog
+    std::vector<std::string> fileNames(unsigned iCatalog) const {
+      std::vector<std::string> tmp ;
+      for (auto it = fileCatalogItems_.begin() ; it != fileCatalogItems_.end() ; ++it) {
+        tmp.push_back(it->fileName(iCatalog)) ;
+      }
+      return tmp; 
+    }
+    //HERE
+    //std::vector<std::string> const& fallbackFileNames() const { return fallbackFileNames_; }
     bool empty() const { return fileCatalogItems_.empty(); }
     static bool isPhysical(std::string const& name) { return (name.empty() || name.find(':') != std::string::npos); }
-    bool hasMultipleDataCatalogs() const { return hasMultipleDataCatalogs_; }
+    //HERE
+    //bool hasMultipleDataCatalogs() const { return hasMultipleDataCatalogs_; }
+
+    //HERE
+    //size_t nFiles() const { return fileCatalogItems_.size() ; }
+    
 
   private:
-    void init(std::string const& override, std::string const& overrideFallback, bool useLFNasPFNifLFNnotFound);
-    void findFile(std::string& pfn, std::string& fallbackPfn, std::string const& lfn, bool useLFNasPFNifLFNnotFound);
+    //HERE
+    //void init(std::string const& override, std::string const& overrideFallback, bool useLFNasPFNifLFNnotFound);
+    //void findFile(std::string& pfn, std::string& fallbackPfn, std::string const& lfn, bool useLFNasPFNifLFNnotFound);
     void init(std::string const& override, bool useLFNasPFNifLFNnotFound);
     void findFile(std::string const& lfn,
                   std::vector<std::string>& pfns,
-                  std::string& fallbackPfn,
+                  //std::string& fallbackPfn,
                   bool useLFNasPFNifLFNnotFound);
     std::vector<std::string> logicalFileNames_;
     std::vector<std::string> fileNames_;
-    std::vector<std::string> fallbackFileNames_;
+    //HERE
+    //std::vector<std::string> fallbackFileNames_;
     std::vector<FileCatalogItem> fileCatalogItems_;
-    edm::propagate_const<std::unique_ptr<FileLocator>> fileLocator_;
+    //HERE
+    //edm::propagate_const<std::unique_ptr<FileLocator>> fileLocator_;
     edm::propagate_const<std::unique_ptr<FileLocator>> overrideFileLocator_;
-    edm::propagate_const<std::unique_ptr<FileLocator>> fallbackFileLocator_;
-    edm::propagate_const<std::unique_ptr<FileLocator>> overrideFallbackFileLocator_;
+    //edm::propagate_const<std::unique_ptr<FileLocator>> fallbackFileLocator_;
+    //edm::propagate_const<std::unique_ptr<FileLocator>> overrideFallbackFileLocator_;
 
     std::vector<edm::propagate_const<std::unique_ptr<FileLocator>>> fileLocators_;
-    bool hasMultipleDataCatalogs_;
+    //HERE
+    //bool hasMultipleDataCatalogs_;
   };
 }  // namespace edm
 

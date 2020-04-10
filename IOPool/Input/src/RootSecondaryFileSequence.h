@@ -46,7 +46,8 @@ namespace edm {
     std::vector<ProcessHistoryID> orderedProcessHistoryIDs_;
     bool enablePrefetching_;
     bool enforceGUIDInFileName_;
-    bool useMultipleDataCatalogs_;
+    //HERE
+    //bool useMultipleDataCatalogs_;
   };  // class RootSecondaryFileSequence
 }  // namespace edm
 #endif

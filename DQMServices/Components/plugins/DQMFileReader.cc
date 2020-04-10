@@ -20,8 +20,9 @@ void DQMFileReader::beginJob() {
     std::vector<std::string> in;
     in.push_back(referenceFileName_);
     edm::InputFileCatalog catalog(in, override, true);
-
-    std::string ff = catalog.fileNames()[0];
+    
+    //HERE
+    std::string ff = catalog.fileNames(0)[0];
     std::cout << "DQMFileReader: reading reference file '" << ff << "'\n";
 
     // now open file, quietly continuing if it does not exist

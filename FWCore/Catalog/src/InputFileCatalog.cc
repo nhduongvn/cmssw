@@ -16,25 +16,22 @@ namespace edm {
 
   InputFileCatalog::InputFileCatalog(std::vector<std::string> const& fileNames,
                                      std::string const& override,
-                                     bool useLFNasPFNifLFNnotFound,
-                                     bool setMultipleDataCatalogs)
+                                     bool useLFNasPFNifLFNnotFound)
+  //HERE
+  //                                   bool setMultipleDataCatalogs)
       : logicalFileNames_(fileNames),
         fileNames_(fileNames),
-        fallbackFileNames_(fileNames.size()),
+        //fallbackFileNames_(fileNames.size()),
         fileCatalogItems_(),
-        fileLocator_(),
-        overrideFileLocator_(),
-        fallbackFileLocator_(),
-        overrideFallbackFileLocator_() {
-    if (!setMultipleDataCatalogs) {
-      init(override, "", useLFNasPFNifLFNnotFound);
-      hasMultipleDataCatalogs_ = false;
-    } else {
-      init(override, useLFNasPFNifLFNnotFound);
-      hasMultipleDataCatalogs_ = true;
-    }
+        //HERE
+        //fileLocator_(),
+        overrideFileLocator_() {
+        //fallbackFileLocator_(),
+        //overrideFallbackFileLocator_() {
+        init(override, useLFNasPFNifLFNnotFound);
   }
 
+  /*
   InputFileCatalog::InputFileCatalog(std::vector<std::string> const& fileNames,
                                      std::string const& override,
                                      std::string const& overrideFallback,
@@ -48,10 +45,11 @@ namespace edm {
         fallbackFileLocator_(),
         overrideFallbackFileLocator_() {
     init(override, overrideFallback, useLFNasPFNifLFNnotFound);
-  }
+  }*/
 
   InputFileCatalog::~InputFileCatalog() {}
-
+  
+  /*
   void InputFileCatalog::init(std::string const& inputOverride,
                               std::string const& inputOverrideFallback,
                               bool useLFNasPFNifLFNnotFound) {
@@ -129,6 +127,7 @@ namespace edm {
       // Empty fallback PFN is OK.
     }
   }
+  */
 
   void InputFileCatalog::init(std::string const& inputOverride, bool useLFNasPFNifLFNnotFound) {
     typedef std::vector<std::string>::iterator iter;
@@ -137,15 +136,17 @@ namespace edm {
       overrideFileLocator_ =
           std::make_unique<FileLocator>(inputOverride, false);  // propagate_const<T> has no reset() function
     }
-
+    
+    //HERE
     //this is for backward compability: need to initialize fallbackFileLocator_
+    /*
     if (!fallbackFileLocator_) {
       try {
         fallbackFileLocator_ = std::make_unique<FileLocator>("", true);  // propagate_const<T> has no reset() function
       } catch (cms::Exception const& e) {
         // No valid fallback locator is OK too.
       }
-    }
+    }*/
 
     //build other file locators from the local config service which are used to read files using different data catalogs
     Service<SiteLocalConfig> localconfservice;
@@ -161,12 +162,16 @@ namespace edm {
       }
     }
 
+    //HERE
+    //for (iter it = fileNames_.begin(),
+    //          lt = logicalFileNames_.begin(),
+    //          ft = fallbackFileNames_.begin(),  //this is for backward compability
     for (iter it = fileNames_.begin(),
               lt = logicalFileNames_.begin(),
-              ft = fallbackFileNames_.begin(),  //this is for backward compability
          itEnd = fileNames_.end();
          it != itEnd;
-         ++it, ++lt, ++ft) {
+         ++it, ++lt) {
+         //++it, ++lt, ++ft) {
       boost::trim(*it);
       std::vector<std::string> pfns;
       if (it->empty()) {
@@ -183,15 +188,16 @@ namespace edm {
         lt->clear();
       } else {
         boost::trim(*lt);
-        findFile(*lt, pfns, *ft, useLFNasPFNifLFNnotFound);  //for backward compability
+        //findFile(*lt, pfns, *ft, useLFNasPFNifLFNnotFound);  //for backward compability
+        findFile(*lt, pfns, useLFNasPFNifLFNnotFound);  //for backward compability
       }
-      fileCatalogItems_.push_back(FileCatalogItem(pfns, *lt, *ft));
+      fileCatalogItems_.push_back(FileCatalogItem(pfns, *lt));
     }
   }
 
   void InputFileCatalog::findFile(std::string const& lfn,
                                   std::vector<std::string>& pfns,
-                                  std::string& fallbackPfn,  //for backward compability
+                                  //std::string& fallbackPfn,  //for backward compability
                                   bool useLFNasPFNifLFNnotFound) {
     if (overrideFileLocator_) {
       std::string pfn = overrideFileLocator_->pfn(lfn);
@@ -213,10 +219,10 @@ namespace edm {
     // Empty PFN will be found by caller.
 
     //for backward compability
-    if (fallbackFileLocator_) {
-      fallbackPfn = fallbackFileLocator_->pfn(lfn);
+    //if (fallbackFileLocator_) {
+    //  fallbackPfn = fallbackFileLocator_->pfn(lfn);
       // Empty fallback PFN is OK.
-    }
+    //}
   }
 
 }  // namespace edm

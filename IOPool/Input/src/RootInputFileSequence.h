@@ -51,16 +51,19 @@ namespace edm {
   protected:
     typedef std::shared_ptr<RootFile> RootFileSharedPtr;
     void initFile(bool skipBadFiles) { initFile_(skipBadFiles); }
+    //HERE
+    /*
     void initTheFile(bool skipBadFiles,
                      bool deleteIndexIntoFile,
                      InputSource* input,
                      char const* inputTypeName,
                      InputType inputType);
-    void initTheFileDataCatalogs(bool skipBadFiles,
-                                 bool deleteIndexIntoFile,
-                                 InputSource* input,
-                                 char const* inputTypeName,
-                                 InputType inputType);
+    */
+    void initTheFile(bool skipBadFiles,
+                     bool deleteIndexIntoFile,
+                     InputSource* input,
+                     char const* inputTypeName,
+                     InputType inputType);
 
     bool skipToItemInNewFile(RunNumber_t run, LuminosityBlockNumber_t lumi, EventNumber_t event);
     bool skipToItemInNewFile(RunNumber_t run, LuminosityBlockNumber_t lumi, EventNumber_t event, size_t fileNameHash);
@@ -78,12 +81,14 @@ namespace edm {
     void setAtNextFile() { ++fileIter_; }
     void setAtPreviousFile() { --fileIter_; }
 
-    std::string const& fileName() const { return fileIter_->fileName(); }
+    //HERE
+    //std::string const& fileName() const { return fileIter_->fileName(); }
 
     std::vector<std::string> const& fileNames() const { return fileIter_->fileNames(); }
 
     std::string const& logicalFileName() const { return fileIter_->logicalFileName(); }
-    std::string const& fallbackFileName() const { return fileIter_->fallbackFileName(); }
+    //HERE
+    //std::string const& fallbackFileName() const { return fileIter_->fallbackFileName(); }
     std::string const& lfn() const { return lfn_; }
     std::vector<FileCatalogItem> const& fileCatalogItems() const;
 

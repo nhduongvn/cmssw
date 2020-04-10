@@ -177,7 +177,9 @@ namespace edm {
     }
     return true;
   }
-
+ 
+  //HERE
+  /*
   void RootInputFileSequence::initTheFile(
       bool skipBadFiles, bool deleteIndexIntoFile, InputSource* input, char const* inputTypeName, InputType inputType) {
     // We are really going to close the open file.
@@ -297,11 +299,12 @@ namespace edm {
       LogWarning("") << "Input file: " << fileName() << " was not found or could not be opened, and will be skipped.\n";
     }
   }
+  */
 
   //Initiate the file using multiple data catalogs
-  void RootInputFileSequence::initTheFileDataCatalogs(
+  void RootInputFileSequence::initTheFile(
       bool skipBadFiles, bool deleteIndexIntoFile, InputSource* input, char const* inputTypeName, InputType inputType) {
-    //std::cout << "\n Use initTheFileDataCatalogs" << std::endl;
+    //std::cout << "\n Use initTheFile" << std::endl;
     // We are really going to close the open file.
 
     if (fileIterLastOpened_ != fileIterEnd_) {
@@ -322,12 +325,12 @@ namespace edm {
     }
 
     // Check if the logical file name was found.
-    if (fileName().empty()) {
+    if (fileNames()[0].empty()) {
       // LFN not found in catalog.
-      InputFile::reportSkippedFile(fileName(), logicalFileName());
+      InputFile::reportSkippedFile(fileNames()[0], logicalFileName());
       if (!skipBadFiles) {
-        throw cms::Exception("LogicalFileNameNotFound", "RootFileSequenceBase::initTheFileDataCatalogs()\n")
-            << "Logical file name '" << logicalFileName() << "' was not found in the file catalog.\n"
+        throw cms::Exception("LogicalFileNameNotFound", "RootFileSequenceBase::initTheFile()\n")
+            << "Physical file name '" << logicalFileName() << "' was not found in the file catalog.\n"
             << "If you wanted a local file, you forgot the 'file:' prefix\n"
             << "before the file name in your configuration file.\n";
       }
@@ -336,7 +339,7 @@ namespace edm {
       return;
     }
 
-    lfn_ = logicalFileName().empty() ? fileName() : logicalFileName();
+    lfn_ = logicalFileName().empty() ? fileNames()[0] : logicalFileName();
     lfnHash_ = std::hash<std::string>()(lfn_);
 
     std::shared_ptr<InputFile> filePtr;
@@ -356,11 +359,12 @@ namespace edm {
         if (!skipBadFiles) {
           if (std::next(it) == fNames.end())
             LogWarning("RootInputFileSequence") << "Fail to open the file after trying all data catalogs.\n";
-          continue;
+          //HERE
+          //continue;
         } else {
           InputFile::reportSkippedFile((*it), logicalFileName());
           Exception ex(errors::FileOpenError, "", e);
-          ex.addContext("Calling RootFileSequenceBase::initTheFileDataCatalogs()");
+          ex.addContext("Calling RootFileSequenceBase::initTheFile()");
           std::ostringstream out;
           out << "Input file " << (*it) << " could not be opened.";
           ex.addAdditionalInfo(out.str());
@@ -383,7 +387,7 @@ namespace edm {
       std::string fName = !fNames.empty() ? fNames[0] : "";
       InputFile::reportSkippedFile(fName, logicalFileName());  //0 cause exception?
       if (!skipBadFiles) {
-        throw Exception(errors::FileOpenError) << "RootFileSequenceBase::initTheFileDataCatalogs(): Input file "
+        throw Exception(errors::FileOpenError) << "RootFileSequenceBase::initTheFile(): Input file "
                                                << fName << " was not found or could not be opened.\n";
       }
       LogWarning("RootInputFileSequence")

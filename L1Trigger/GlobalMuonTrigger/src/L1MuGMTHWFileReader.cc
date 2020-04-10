@@ -42,14 +42,17 @@ L1MuGMTHWFileReader::L1MuGMTHWFileReader(edm::ParameterSet const& ps, edm::Input
   produces<std::vector<L1MuRegionalCand> >("RPCf");
 
   produces<L1CaloRegionCollection>();
-
-  if (fileNames().empty()) {
+  
+  //HERE
+  if (fileNames(0).empty()) {
     throw std::runtime_error("L1MuGMTHWFileReader: no input file");
   }
-  edm::LogInfo("GMT_HWFileReader_info") << "opening file " << fileNames()[0];
-  m_in.open((fileNames()[0].substr(fileNames()[0].find(":") + 1)).c_str());
+  //HERE
+  edm::LogInfo("GMT_HWFileReader_info") << "opening file " << fileNames(0)[0];
+  //HERE
+  m_in.open((fileNames(0)[0].substr(fileNames(0)[0].find(":") + 1)).c_str());
   if (!m_in) {
-    throw std::runtime_error("L1MuGMTHWFileReader: file " + fileNames()[0] + " could not be openned");
+    throw std::runtime_error("L1MuGMTHWFileReader: file " + fileNames(0)[0] + " could not be openned");
   }
 }
 

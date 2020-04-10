@@ -450,8 +450,10 @@ DQMRootSource::DQMRootSource(edm::ParameterSet const& iPSet, const edm::InputSou
        itr != m_lumisToProcess.end();
        ++itr)
     m_runsToProcess.push_back(itr->startRun());
-
-  if (m_fileIndex == m_catalog.fileNames().size()) {
+  
+  //HERE
+  //if (m_fileIndex == m_catalog.fileNames().size()) {
+  if (m_fileIndex == m_catalog.fileNames(0).size()) {
     m_nextItemType = edm::InputSource::IsStop;
   } else {
     m_treeReaders[kIntIndex].reset(new TreeSimpleReader<Long64_t>());
@@ -616,7 +618,8 @@ void DQMRootSource::readLuminosityBlock_(edm::LuminosityBlockPrincipal& lbCache)
 }
 
 std::unique_ptr<edm::FileBlock> DQMRootSource::readFile_() {
-  auto const numFiles = m_catalog.fileNames().size();
+  //HERE
+  auto const numFiles = m_catalog.fileNames(0).size();
   while (m_fileIndex < numFiles && not setupFile(m_fileIndex++)) {
   }
 
@@ -721,7 +724,9 @@ void DQMRootSource::readNextItemType() {
       //go to next file
       m_nextItemType = edm::InputSource::IsFile;
       //std::cout <<"going to next file"<<std::endl;
-      if (m_fileIndex == m_catalog.fileNames().size()) {
+      //HERE
+      if (m_fileIndex == m_catalog.fileNames(0).size()) {
+      //if (m_fileIndex == m_catalog.nFiles()) {
         m_nextItemType = edm::InputSource::IsStop;
       }
       break;
@@ -752,16 +757,71 @@ bool DQMRootSource::setupFile(unsigned int iIndex) {
     m_file->Close();
     logFileAction("  Closed file ", m_presentlyOpenFileName.c_str());
   }
-  logFileAction("  Initiating request to open file ", m_catalog.fileNames()[iIndex].c_str());
+  //HERE
+  logFileAction("  Initiating request to open file ", m_catalog.fileNames(0)[iIndex].c_str());
 
-  auto fallbackFileName = m_catalog.fallbackFileNames()[iIndex];
-  bool hasFallback = !fallbackFileName.empty() && fallbackFileName != m_catalog.fileNames()[iIndex];
+  //HERE
+  //auto fallbackFileName = m_catalog.fallbackFileNames()[iIndex];
+  //bool hasFallback = !fallbackFileName.empty() && fallbackFileName != m_catalog.fileNames()[iIndex];
 
   m_presentlyOpenFileName.clear();
   m_file.reset();
 
   std::unique_ptr<TFile> newFile;
   std::list<std::string> originalInfo;
+  //HERE
+  //loop over data catalog 
+  std::vector<std::string> fNames = m_catalog.fileCatalogItems()[iIndex].fileNames() ;
+  for (std::vector<std::string>::iterator it = fNames.begin(); it != fNames.end(); ++it) {
+    try {
+      // ROOT's context management implicitly assumes that a file is opened and
+      // closed on the same thread.  To avoid the problem, we declare a local
+      // TContext object; when it goes out of scope, its destructor unregisters
+      // the context, guaranteeing the context is unregistered in the same thread
+      // it was registered in.
+      {
+        TDirectory::TContext contextEraser;
+        newFile = std::unique_ptr<TFile>(TFile::Open(it->c_str()));
+      }
+      //Since ROOT6, we can not propagate an exception through ROOT's plugin
+      // system so we trap them and then pull from this function
+      std::exception_ptr e = edm::threadLocalException::getException();
+      if (e != std::exception_ptr()) {
+        edm::threadLocalException::setException(std::exception_ptr());
+        std::rethrow_exception(e);
+      }
+      
+    } catch (cms::Exception const& e) {
+      if (std::next(it) == fNames.end()) { //last data catalog
+        if (m_skipBadFiles) {
+          return false;
+        } else {
+          edm::Exception ex(edm::errors::FileOpenError, "", e);
+          ex.addContext("Opening DQM Root file");
+          ex << "\nInput file " << (*it)
+            << " was not found, could not be opened. No more data catalog to open file.\n";
+          throw ex;
+        }
+      }  
+      originalInfo = e.additionalInfo();  // save in case of other data catalog errors 
+      newFile.reset();
+      continue ;
+    }
+  
+    if (newFile && not newFile->IsZombie()) {
+      m_presentlyOpenFileName = (*it) ;
+      logFileAction("  Successfully opened file ", m_presentlyOpenFileName.c_str());
+      break ;
+    } else {
+      if (m_skipBadFiles && std::next(it) == fNames.end()) {
+        return false;
+      }
+      newFile.reset();
+    }
+    
+  }
+  
+  /*
   try {
     // ROOT's context management implicitly assumes that a file is opened and
     // closed on the same thread.  To avoid the problem, we declare a local
@@ -856,6 +916,7 @@ bool DQMRootSource::setupFile(unsigned int iIndex) {
       }
     }
   }
+  */
 
   //Check file format version, which is encoded in the Title of the TFile
   if (0 != strcmp(newFile->GetTitle(), "1")) {

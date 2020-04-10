@@ -25,12 +25,13 @@ namespace edm {
         input_(input),
         orderedProcessHistoryIDs_(),
         enablePrefetching_(false),
-        enforceGUIDInFileName_(pset.getUntrackedParameter<bool>("enforceGUIDInFileName")),
-        useMultipleDataCatalogs_(false) {
-    if (useMultipleDataCatalogs_ && !catalog.hasMultipleDataCatalogs()) {
-      LogWarning("RootPrimaryFileSequence") << "Multiple data catalogs not available, use default settings.\n";
-      useMultipleDataCatalogs_ = false;
-    }
+        enforceGUIDInFileName_(pset.getUntrackedParameter<bool>("enforceGUIDInFileName")) {
+        //HERE
+        //useMultipleDataCatalogs_(false) {
+    //if (useMultipleDataCatalogs_ && !catalog.hasMultipleDataCatalogs()) {
+      //LogWarning("RootPrimaryFileSequence") << "Multiple data catalogs not available, use default settings.\n";
+      //useMultipleDataCatalogs_ = false;
+    //}
 
     // The SiteLocalConfig controls the TTreeCache size and the prefetching settings.
     Service<SiteLocalConfig> pSLC;
@@ -43,7 +44,8 @@ namespace edm {
     // thousands of files and prestaging all those files can cause a site to fail.
     // So, we stage in the first secondary file only.
     setAtFirstFile();
-    StorageFactory::get()->stagein(fileName());
+    //HERE
+    StorageFactory::get()->stagein(fileNames()[0]);
 
     // Open the first file.
     for (setAtFirstFile(); !noMoreFiles(); setAtNextFile()) {
@@ -69,16 +71,15 @@ namespace edm {
   }
 
   void RootSecondaryFileSequence::initFile_(bool skipBadFiles) {
-    if (!useMultipleDataCatalogs_)
-      initTheFile(skipBadFiles, false, nullptr, "secondaryFiles", InputType::SecondaryFile);
-    else
-      initTheFileDataCatalogs(skipBadFiles, false, nullptr, "secondaryFiles", InputType::SecondaryFile);
+    //HERE
+    initTheFile(skipBadFiles, false, nullptr, "secondaryFiles", InputType::SecondaryFile);
   }
 
   RootSecondaryFileSequence::RootFileSharedPtr RootSecondaryFileSequence::makeRootFile(
       std::shared_ptr<InputFile> filePtr) {
     size_t currentIndexIntoFile = sequenceNumberOfFile();
-    return std::make_shared<RootFile>(fileName(),
+    //HERE
+    return std::make_shared<RootFile>(fileNames()[0],
                                       input_.processConfiguration(),
                                       logicalFileName(),
                                       filePtr,
