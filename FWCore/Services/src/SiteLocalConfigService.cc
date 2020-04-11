@@ -76,8 +76,9 @@ namespace edm {
 
     SiteLocalConfigService::SiteLocalConfigService(ParameterSet const &pset)
         : m_url(pset.getUntrackedParameter<std::string>("siteLocalConfigFileUrl", defaultURL())),
-          m_dataCatalog(),
-          m_fallbackDataCatalog(),
+          //HERE
+          //m_dataCatalog(),
+          //m_fallbackDataCatalog(),
           m_dataCatalogs(),
           m_frontierConnect(),
           m_rfioType("castor"),
@@ -142,8 +143,9 @@ namespace edm {
         m_statisticsAddrInfo = nullptr;
       }
     }
-
-    std::string const SiteLocalConfigService::dataCatalog(void) const {
+    
+    //HERE
+    /*std::string const SiteLocalConfigService::dataCatalog(void) const {
       if (!m_connected) {
         //throw cms::Exception("Incomplete configuration")
         //    << "Valid site-local-config not found at " << m_url;
@@ -156,14 +158,14 @@ namespace edm {
       }
 
       return m_dataCatalog;
-    }
+    }*/
 
-    std::vector<std::string> const SiteLocalConfigService::dataCatalogs(void) const {
+    std::vector<std::string> const& SiteLocalConfigService::dataCatalogs(void) const {
       if (!m_connected) {
         //throw cms::Exception("Incomplete configuration")
         //    << "Valid site-local-config not found at " << m_url;
         // Return PoolFileCatalog.xml for now
-        std::vector<std::string> tmp{"file:PoolFileCatalog.xml"};
+        static std::vector<std::string> const tmp{"file:PoolFileCatalog.xml"};
         return tmp;
       }
 
@@ -173,7 +175,9 @@ namespace edm {
 
       return m_dataCatalogs;
     }
-
+    
+    //HERE
+    /*
     std::string const SiteLocalConfigService::fallbackDataCatalog(void) const {
       if (!m_connected) {
         //throw cms::Exception("Incomplete configuration")
@@ -185,6 +189,7 @@ namespace edm {
       // Note: Unlike the dataCatalog, the fallbackDataCatalog may be empty!
       return m_fallbackDataCatalog;
     }
+    */
 
     std::string const SiteLocalConfigService::frontierConnect(std::string const &servlet) const {
       if (!m_connected) {
@@ -334,13 +339,14 @@ namespace edm {
           if (eventData) {
             auto catalog = eventData->FirstChildElement("catalog");
             if (catalog) {
-              m_dataCatalog = safe(catalog->Attribute("url"));
-              m_dataCatalogs.push_back(m_dataCatalog);
+              //HERE
+              m_dataCatalogs.push_back(safe(catalog->Attribute("url")));
               catalog = catalog->NextSiblingElement("catalog");
               while (catalog) {
                 m_dataCatalogs.push_back(safe(catalog->Attribute("url")));
-                if (m_fallbackDataCatalog.empty())
-                  m_fallbackDataCatalog = m_dataCatalogs.back();  //for backward comparability
+                //HERE
+                //if (m_fallbackDataCatalog.empty())
+                //  m_fallbackDataCatalog = m_dataCatalogs.back();  //for backward comparability
                 catalog = catalog->NextSiblingElement("catalog");
               }
             }

@@ -134,7 +134,9 @@ namespace edm {
 
     if (!overrideFileLocator_ && !inputOverride.empty()) {
       overrideFileLocator_ =
-          std::make_unique<FileLocator>(inputOverride, false);  // propagate_const<T> has no reset() function
+        //HERE
+        //  std::make_unique<FileLocator>(inputOverride, false);  // propagate_const<T> has no reset() function
+        std::make_unique<FileLocator>(inputOverride);  // propagate_const<T> has no reset() function
     }
     
     //HERE
@@ -149,14 +151,22 @@ namespace edm {
     }*/
 
     //build other file locators from the local config service which are used to read files using different data catalogs
+    //HERE
     Service<SiteLocalConfig> localconfservice;
-    std::vector<std::string> tmp_dataCatalogs = localconfservice->dataCatalogs();
+    if (!localconfservice.isAvailable())
+        throw cms::Exception("TrivialFileCatalog", "edm::SiteLocalConfigService is not available");
+
+    std::vector<std::string> const& tmp_dataCatalogs = localconfservice->dataCatalogs();
     if (!fileLocators_.empty())
       fileLocators_.clear();
-
-    for (std::vector<std::string>::iterator it = tmp_dataCatalogs.begin(); it != tmp_dataCatalogs.end(); ++it) {
+    
+    //HERE
+    //for (std::vector<std::string>::iterator it = tmp_dataCatalogs.begin(); it != tmp_dataCatalogs.end(); ++it) {
+    for (auto it = tmp_dataCatalogs.begin(); it != tmp_dataCatalogs.end(); ++it) {
       try {
-        fileLocators_.push_back(std::make_unique<FileLocator>(*it, false));
+        //HERE
+        //fileLocators_.push_back(std::make_unique<FileLocator>(*it, false));
+        fileLocators_.push_back(std::make_unique<FileLocator>(*it));
       } catch (cms::Exception const& e) {
         continue;
       }
@@ -205,8 +215,10 @@ namespace edm {
         pfns.push_back(pfn);
       }
     } else {
-      for (unsigned int i = 0; i < fileLocators_.size(); ++i) {
-        std::string pfn = fileLocators_[i]->pfn(lfn);
+      //HERE
+      //for (unsigned int i = 0; i < fileLocators_.size(); ++i) {
+      for (auto const& locator : fileLocators_) {
+        std::string pfn = locator->pfn(lfn);
         if (!pfn.empty())
           pfns.push_back(pfn);
       }
