@@ -48,6 +48,14 @@ namespace edm {
   }*/
 
   InputFileCatalog::~InputFileCatalog() {}
+
+  std::vector<std::string> InputFileCatalog::fileNames(unsigned iCatalog) const {
+    std::vector<std::string> tmp ;
+    for (auto it = fileCatalogItems_.begin() ; it != fileCatalogItems_.end() ; ++it) {
+      tmp.push_back(it->fileName(iCatalog)) ;
+    }
+    return tmp; 
+  }
   
   /*
   void InputFileCatalog::init(std::string const& inputOverride,

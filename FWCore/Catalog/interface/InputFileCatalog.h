@@ -61,13 +61,7 @@ namespace edm {
     std::vector<FileCatalogItem> const& fileCatalogItems() const { return fileCatalogItems_; }
     std::vector<std::string> const& logicalFileNames() const { return logicalFileNames_; }
     //HERE return number of input files for a data catalog
-    std::vector<std::string> fileNames(unsigned iCatalog) const {
-      std::vector<std::string> tmp ;
-      for (auto it = fileCatalogItems_.begin() ; it != fileCatalogItems_.end() ; ++it) {
-        tmp.push_back(it->fileName(iCatalog)) ;
-      }
-      return tmp; 
-    }
+    std::vector<std::string> fileNames(unsigned iCatalog) const ;
     //HERE
     //std::vector<std::string> const& fallbackFileNames() const { return fallbackFileNames_; }
     bool empty() const { return fileCatalogItems_.empty(); }
