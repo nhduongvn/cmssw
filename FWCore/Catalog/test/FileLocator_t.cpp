@@ -10,10 +10,8 @@
 namespace {
   class TestSiteLocalConfig : public edm::SiteLocalConfig {
   public:
-    TestSiteLocalConfig(std::string catalog) : m_catalog(std::move(catalog)) {}
     //HERE
-    //std::string const dataCatalog(void) const final { return m_catalog; }
-    //std::string const fallbackDataCatalog(void) const final { return std::string(); }
+    TestSiteLocalConfig(std::vector<std::string> catalogs) : m_catalogs(std::move(catalogs)) {}
     std::vector<std::string> const& dataCatalogs(void) const final { return m_catalogs; }
     std::string const lookupCalibConnect(std::string const& input) const final { return std::string(); }
     std::string const rfioType(void) const final { return std::string(); }
@@ -38,7 +36,8 @@ namespace {
     }
 
   private:
-    std::string m_catalog;
+    //HERE
+    //std::string m_catalog;
     std::vector<std::string> m_catalogs;
   };
 }  // namespace
@@ -52,14 +51,15 @@ TEST_CASE("FileLocator", "[filelocator]") {
                                    : CMSSW_RELEASE_BASE + file_name;
 
   //create the services
+  //HERE
+  std::vector<std::string> tmp{std::string("trivialcatalog_file:") + full_file_name + "?protocol=xrd"} ;
   edm::ServiceToken tempToken(edm::ServiceRegistry::createContaining(std::unique_ptr<edm::SiteLocalConfig>(
-      new TestSiteLocalConfig(std::string("trivialcatalog_file:") + full_file_name + "?protocol=xrd"))));
+          //HERE
+      new TestSiteLocalConfig(tmp))));
 
   //make the services available
   SECTION("standard") {
     edm::ServiceRegistry::Operate operate(tempToken);
-    //HERE
-    //edm::FileLocator fl("", false);
     edm::FileLocator fl("", 0);
 
     const std::array<const char*, 7> lfn = {{"/bha/bho",
@@ -90,8 +90,6 @@ TEST_CASE("FileLocator", "[filelocator]") {
                                               ? CMSSW_BASE + override_file_name
                                               : CMSSW_RELEASE_BASE + override_file_name;
     
-    //HERE
-    //edm::FileLocator fl(("trivialcatalog_file:" + override_full_file_name + "?protocol=override").c_str(), false);
     edm::FileLocator fl(("trivialcatalog_file:" + override_full_file_name + "?protocol=override").c_str());
 
     std::array<const char*, 8> lfn = {{"/store/group/bha/bho",
