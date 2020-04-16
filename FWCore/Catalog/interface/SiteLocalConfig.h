@@ -30,7 +30,6 @@ namespace edm {
     SiteLocalConfig() {}
     virtual ~SiteLocalConfig() {}
     
-    //HERE
     //virtual std::string const dataCatalog(void) const = 0;
     virtual std::vector<std::string> const& dataCatalogs(void) const = 0;
     //virtual std::string const fallbackDataCatalog(void) const = 0;

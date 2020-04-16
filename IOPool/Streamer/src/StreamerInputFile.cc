@@ -59,9 +59,7 @@ namespace edm {
         currProto_(0),
         newHeader_(false),
         endOfFile_(false) {
-    //HERE
-    //openStreamerFile(names.at(0).fileName(), names.at(0).logicalFileName());
-    openStreamerFile(names.at(0).fileNames()[0], names.at(0).logicalFileName());
+    openStreamerFile(names.at(0).fileName(0), names.at(0).logicalFileName());
     ++currentFile_;
     readStartMessage();
     currRun_ = startMsg_->run();
@@ -72,7 +70,7 @@ namespace edm {
     closeStreamerFile();
 
     currentFileName_ = name;
-
+    
     // Check if the logical file name was found.
     if (currentFileName_.empty()) {
       // LFN not found in catalog.
@@ -190,8 +188,7 @@ namespace edm {
 
   bool StreamerInputFile::openNextFile() {
     if (currentFile_ <= streamerNames_.size() - 1) {
-      //FDEBUG(10) << "Opening file " << streamerNames_.at(currentFile_).fileName().c_str() << std::endl;
-      //HERE
+      
       FDEBUG(10) << "Opening file " << streamerNames_.at(currentFile_).fileNames()[0].c_str() << std::endl;
 
       openStreamerFile(streamerNames_.at(currentFile_).fileNames()[0], streamerNames_.at(currentFile_).logicalFileName());
@@ -216,8 +213,6 @@ namespace edm {
     //Values from new Header should match up
     if (currRun_ != startMsg_->run() || currProto_ != startMsg_->protocolVersion()) {
       throw Exception(errors::MismatchedInputFiles, "StreamerInputFile::compareHeader")
-          //HERE
-          //<< "File " << streamerNames_.at(currentFile_).fileName()
           << "File " << streamerNames_.at(currentFile_).fileNames()[0]
           << "\nhas different run number or protocol version than previous\n";
       return false;

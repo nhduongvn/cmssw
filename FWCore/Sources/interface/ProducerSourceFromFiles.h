@@ -20,12 +20,8 @@ namespace edm {
     ~ProducerSourceFromFiles() override;
 
     using FromFiles::catalog;
-    //HERE
     using FromFiles::fileNames;
     using FromFiles::logicalFileNames;
-
-    //HERE
-    //bool noFiles() const override { return fileNames().empty(); }
 
     static void fillDescription(ParameterSetDescription& desc);
 

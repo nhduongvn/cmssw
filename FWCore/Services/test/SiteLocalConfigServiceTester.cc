@@ -120,7 +120,6 @@ namespace {
 // const member functions
 //
 void SiteLocalConfigServiceTester::analyze(const edm::Event&, const edm::EventSetup&) {
-  /*
   edm::Service<edm::SiteLocalConfig> pConfig;
   if (m_valuesSet) {
     testValue("sourceCacheTempDir", m_tempDir, pConfig->sourceCacheTempDir());
@@ -148,7 +147,7 @@ void SiteLocalConfigServiceTester::analyze(const edm::Event&, const edm::EventSe
     checkNotSet("sourceReadHint", pConfig->sourceReadHint());
     checkNotSet("sourceTTreeCacheSize", pConfig->sourceTTreeCacheSize());
     checkNotSet("sourceNativeProtocols", pConfig->sourceNativeProtocols());
-  }*/
+  }
 }
 
 //

@@ -12,7 +12,6 @@ namespace edm {
 
   class FileLocator {
   public:
-    //HERE
     explicit FileLocator(std::string const& catUrl, unsigned iCatalog=0);
     ~FileLocator();
 
@@ -35,7 +34,6 @@ namespace edm {
     typedef std::vector<Rule> Rules;
     typedef std::map<std::string, Rules> ProtocolRules;
     
-    //HERE
     void init(std::string const& catUrl, unsigned iCatalog);
 
     void parseRule(tinyxml2::XMLElement* ruleNode, ProtocolRules& rules);

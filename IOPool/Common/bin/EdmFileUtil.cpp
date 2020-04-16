@@ -127,7 +127,6 @@ int main(int argc, char* argv[]) {
     }
 
     edm::InputFileCatalog catalog(in, catalogIn, true);
-    //HERE
     std::vector<std::string> const& filesIn = catalog.fileNames(0);
 
     if (json) {

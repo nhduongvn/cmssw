@@ -35,12 +35,6 @@ namespace edm {
         usingGoToEvent_(false),
         enablePrefetching_(false),
         enforceGUIDInFileName_(pset.getUntrackedParameter<bool>("enforceGUIDInFileName")) {
-        //HERE
-        //useMultipleDataCatalogs_(false) {
-    //if (useMultipleDataCatalogs_ && !catalog.hasMultipleDataCatalogs()) {
-      //LogWarning("RootPrimaryFileSequence") << "Multiple data catalogs not available, use default settings.\n";
-      //useMultipleDataCatalogs_ = false;
-    //}
 
     // The SiteLocalConfig controls the TTreeCache size and the prefetching settings.
     Service<SiteLocalConfig> pSLC;
@@ -58,8 +52,6 @@ namespace edm {
 
     // Prestage the files
     for (setAtFirstFile(); !noMoreFiles(); setAtNextFile()) {
-      //HERE
-      //StorageFactory::get()->stagein(fileName());
       StorageFactory::get()->stagein(fileNames()[0]);
     }
     // Open the first file.
@@ -120,7 +112,6 @@ namespace edm {
 
   RootPrimaryFileSequence::RootFileSharedPtr RootPrimaryFileSequence::makeRootFile(std::shared_ptr<InputFile> filePtr) {
     size_t currentIndexIntoFile = sequenceNumberOfFile();
-    //HERE
     return std::make_shared<RootFile>(fileNames()[0],
                                       input_.processConfiguration(),
                                       logicalFileName(),
@@ -164,7 +155,6 @@ namespace edm {
 
     if (rootFile()) {
       // make sure the new product registry is compatible with the main one
-      //HERE
       std::string mergeInfo =
           input_.productRegistryUpdate().merge(*rootFile()->productRegistry(), fileNames()[0], branchesMustMatch_);
       if (!mergeInfo.empty()) {
@@ -184,7 +174,6 @@ namespace edm {
 
     if (rootFile()) {
       // make sure the new product registry is compatible to the main one
-      //HERE
       std::string mergeInfo =
           input_.productRegistryUpdate().merge(*rootFile()->productRegistry(), fileNames()[0], branchesMustMatch_);
       if (!mergeInfo.empty()) {

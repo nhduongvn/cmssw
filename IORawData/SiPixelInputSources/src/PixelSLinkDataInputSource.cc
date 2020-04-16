@@ -201,12 +201,10 @@ PixelSLinkDataInputSource::PixelSLinkDataInputSource(const edm::ParameterSet &ps
       m_eventnumber_shift(0) {
   produces<FEDRawDataCollection>();
   
-  //HERE
   if (m_fileindex >= fileNames(0).size()) {
     edm::LogInfo("") << "no more file to read " << std::endl;
     return;  // ???
   }
-  //HERE
   std::string currentfilename = fileNames(0)[m_fileindex];
   edm::LogInfo("") << "now examining file " << currentfilename;
   m_fileindex++;

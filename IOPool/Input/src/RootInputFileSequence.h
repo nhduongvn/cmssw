@@ -51,14 +51,6 @@ namespace edm {
   protected:
     typedef std::shared_ptr<RootFile> RootFileSharedPtr;
     void initFile(bool skipBadFiles) { initFile_(skipBadFiles); }
-    //HERE
-    /*
-    void initTheFile(bool skipBadFiles,
-                     bool deleteIndexIntoFile,
-                     InputSource* input,
-                     char const* inputTypeName,
-                     InputType inputType);
-    */
     void initTheFile(bool skipBadFiles,
                      bool deleteIndexIntoFile,
                      InputSource* input,
@@ -81,14 +73,9 @@ namespace edm {
     void setAtNextFile() { ++fileIter_; }
     void setAtPreviousFile() { --fileIter_; }
 
-    //HERE
-    //std::string const& fileName() const { return fileIter_->fileName(); }
-
     std::vector<std::string> const& fileNames() const { return fileIter_->fileNames(); }
 
     std::string const& logicalFileName() const { return fileIter_->logicalFileName(); }
-    //HERE
-    //std::string const& fallbackFileName() const { return fileIter_->fallbackFileName(); }
     std::string const& lfn() const { return lfn_; }
     std::vector<FileCatalogItem> const& fileCatalogItems() const;
 

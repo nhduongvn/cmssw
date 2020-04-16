@@ -21,7 +21,6 @@ void DQMFileReader::beginJob() {
     in.push_back(referenceFileName_);
     edm::InputFileCatalog catalog(in, override, true);
     
-    //HERE
     std::string ff = catalog.fileNames(0)[0];
     std::cout << "DQMFileReader: reading reference file '" << ff << "'\n";
 

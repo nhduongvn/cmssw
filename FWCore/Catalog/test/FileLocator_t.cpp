@@ -10,7 +10,6 @@
 namespace {
   class TestSiteLocalConfig : public edm::SiteLocalConfig {
   public:
-    //HERE
     TestSiteLocalConfig(std::vector<std::string> catalogs) : m_catalogs(std::move(catalogs)) {}
     std::vector<std::string> const& dataCatalogs(void) const final { return m_catalogs; }
     std::string const lookupCalibConnect(std::string const& input) const final { return std::string(); }
@@ -36,8 +35,6 @@ namespace {
     }
 
   private:
-    //HERE
-    //std::string m_catalog;
     std::vector<std::string> m_catalogs;
   };
 }  // namespace
@@ -51,10 +48,8 @@ TEST_CASE("FileLocator", "[filelocator]") {
                                    : CMSSW_RELEASE_BASE + file_name;
 
   //create the services
-  //HERE
   std::vector<std::string> tmp{std::string("trivialcatalog_file:") + full_file_name + "?protocol=xrd"} ;
   edm::ServiceToken tempToken(edm::ServiceRegistry::createContaining(std::unique_ptr<edm::SiteLocalConfig>(
-          //HERE
       new TestSiteLocalConfig(tmp))));
 
   //make the services available

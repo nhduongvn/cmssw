@@ -42,9 +42,7 @@ namespace {
 }  // namespace
 
 namespace edm {
-  //HERE
   FileLocator::FileLocator(std::string const& catUrl, unsigned iCatalog) : m_destination("any") {
-    //HERE
     init(catUrl, iCatalog);
 
     // std::cout << m_protocols.size() << " protocols" << std::endl;
@@ -91,11 +89,9 @@ namespace edm {
     rules[protocol].emplace_back(std::move(rule));
   }
   
-  //HERE
   void FileLocator::init(std::string const& catUrl, unsigned iCatalog) {
     std::string m_url = catUrl;
     
-    //HERE
     if (m_url.empty()) {
       Service<SiteLocalConfig> localconfservice;
       if (!localconfservice.isAvailable())
